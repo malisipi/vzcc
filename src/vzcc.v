@@ -17,13 +17,13 @@ fn user_arch() string {
 fn compile(file string, output_file string, target_arch string, target_os string, target_os_extra string){
 	mut vflags := ""
 	mut ldflags := ""
-	if target_os=="windows"{
+	if target_os=="windows" && os.getenv("SKIP_WINMAIN")!="1" {
 		ldflags += "-I" + @VMODROOT.replace("\"","\\\"") + "/src -include win_boot.h "
 	} else if target_os=="linux" {
 		vflags += "-gc none "
 	}
 	
-	system_command := "VCROSS_COMPILER_NAME=\"zig_cc\" v -cc zig_cc -d zigcc -cflags \"-target ${target_arch}-${target_os}${target_os_extra} -Wno-everything -fno-sanitize=undefined\" -ldflags \"${ldflags}\" ${vflags} -os ${target_os} ${file} -o ${output_file}"
+	system_command := "VCROSS_COMPILER_NAME=\"zig_cc\" v -cc zig_cc -d zigcc -cflags \"-target ${target_arch}-${target_os}${target_os_extra} -Wno-everything -fno-sanitize=undefined -D__ZIGCC__\" -d zigcc -ldflags \"${ldflags}\" ${vflags} -os ${target_os} ${file} -o ${output_file}"
 	$if debug? {
 		println("[VZCC] $ ${system_command}")
 	}
@@ -40,6 +40,6 @@ fn main(){
 			compile(os.args[1], os.args[3], user_arch(), os.args[2], "")
 		} 3 {
 			compile(os.args[1], os.args[2], user_arch(), os.user_os(), "")
-		} else { panic("!!") }
+		} else { panic("[VZCC]: Zig CC for V") }
 	}
 }
