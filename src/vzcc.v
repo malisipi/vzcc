@@ -19,7 +19,7 @@ fn compile(file string, output_file string, target_arch string, target_os string
 	mut ldflags := ""
 	if target_os=="windows" && os.getenv("SKIP_WINMAIN")!="1" {
 		ldflags += "-I" + @VMODROOT.replace("\"","\\\"") + "/src -include win_boot.h "
-	} else if target_os=="linux" {
+	} else if target_os!="windows" {
 		vflags += "-gc none "
 	}
 	
