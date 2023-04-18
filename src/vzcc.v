@@ -15,15 +15,16 @@ fn user_arch() string {
 }
 
 fn compile(file string, output_file string, target_arch string, target_os string, target_os_extra string){
-	mut vflags := ""
-	mut ldflags := ""
+	mut vflags := os.getenv("VZCC_VFLAGS") + " "
+	mut cflags := os.getenv("VZCC_CFLAGS") + " "
+	mut ldflags := os.getenv("VZCC_LDFLAGS") + " "
 	if target_os=="windows" && os.getenv("SKIP_WINMAIN")!="1" {
 		ldflags += "-I" + @VMODROOT.replace("\"","\\\"") + "/src -include win_boot.h "
 	} else if target_os!="windows" {
 		vflags += "-gc none "
 	}
 	
-	system_command := "VCROSS_COMPILER_NAME=\"zig_cc\" v -cc zig_cc -d zigcc -cflags \"-target ${target_arch}-${target_os}${target_os_extra} -Wno-everything -fno-sanitize=undefined -D__ZIGCC__\" -d zigcc -ldflags \"${ldflags}\" ${vflags} -os ${target_os} ${file} -o ${output_file}"
+	system_command := "VCROSS_COMPILER_NAME=\"zig_cc\" v -cc zig_cc -d zigcc -cflags \"-target ${target_arch}-${target_os}${target_os_extra} -Wno-everything -fno-sanitize=undefined -D__ZIGCC__ ${cflags}\" -d zigcc -ldflags \"${ldflags}\" ${vflags} -os ${target_os} ${file} -o ${output_file}"
 	$if debug? {
 		println("[VZCC] $ ${system_command}")
 	}
